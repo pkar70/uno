@@ -76,12 +76,12 @@ namespace <#= mixin.NamespaceName #>
 
 		public double ActualWidth
 		{
-			get { return _actualSize.Width; }
+			get { return _currentSize.Width; }
 		}
 
 		public double ActualHeight
 		{
-			get { return _actualSize.Height; }
+			get { return _currentSize.Height; }
 		}
 
 #if !<#= mixin.IsFrameworkElement #>
@@ -858,16 +858,16 @@ namespace <#= mixin.NamespaceName #>
 		}
 
 #if <#= mixin.OverridesOnLayout #>
-		private Size _actualSize;
+		private Size _currentSize;
 		protected override void OnLayout(bool changed, int left, int top, int right, int bottom)
 		{
 			var newSize = new Size(right - left, bottom - top).PhysicalToLogicalPixels();
-			var previousSize = _actualSize;
+			var previousSize = _currentSize;
 
 			base.OnLayout(changed, left, top, right, bottom);
 			OnLayoutPartial(changed, left, top, right, bottom);
 
-			_actualSize = newSize;
+			_currentSize = newSize;
 
 			if (newSize != previousSize)
 			{

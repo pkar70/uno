@@ -414,21 +414,21 @@ namespace <#= mixin.NamespaceName #>
 		#endregion
 
 
-		public virtual double ActualWidth { get { return _actualSize.Width; } }
+		public virtual double ActualWidth { get { return _currentSize.Width; } }
 
-		public virtual double ActualHeight { get { return _actualSize.Height; } }
+		public virtual double ActualHeight { get { return _currentSize.Height; } }
 
-		private Size _actualSize;
+		private Size _currentSize;
 		public override CGRect Frame
 		{
 			get { return base.Frame; }
 			set
 			{
-				var previousSize = _actualSize;
-				_actualSize = value.Size.ToFoundationSize().PhysicalToLogicalPixels();
+				var previousSize = _currentSize;
+				_currentSize = value.Size.ToFoundationSize().PhysicalToLogicalPixels();
 
 #if <#= mixin.IsFrameworkElement #>
-				RenderSize = _actualSize;
+				RenderSize = _currentSize;
 #endif
 
 				CGAffineTransform? oldTransform = null;
@@ -443,14 +443,14 @@ namespace <#= mixin.NamespaceName #>
 				base.Frame = value;
 				AppliedFrame = value;
 				
-				if (previousSize != _actualSize)
+				if (previousSize != _currentSize)
 				{
-					SizeChanged?.Invoke(this, new SizeChangedEventArgs(this, previousSize, _actualSize));
+					SizeChanged?.Invoke(this, new SizeChangedEventArgs(this, previousSize, _currentSize));
 
 					if (_renderTransform != null)
 					{
 						// This will set the updated Transform
-						_renderTransform.UpdateSize(_actualSize);
+						_renderTransform.UpdateSize(_currentSize);
 					}
 					else if (oldTransform.HasValue)
 					{
