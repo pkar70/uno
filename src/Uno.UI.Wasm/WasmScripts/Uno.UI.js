@@ -2512,6 +2512,44 @@ var Windows;
 })(Windows || (Windows = {}));
 var Windows;
 (function (Windows) {
+    var System;
+    (function (System) {
+        var Profile;
+        (function (Profile) {
+            class AnalyticsVersionInfo {
+                static getUserAgent() {
+                    return navigator.userAgent;
+                }
+                static getBrowserName() {
+                    // Opera 8.0+
+                    if ((!!window.opr && !!window.opr.addons) || !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0) {
+                        return "Opera";
+                    }
+                    // Firefox 1.0+
+                    if (typeof window.InstallTrigger !== 'undefined') {
+                        return "Firefox";
+                    }
+                    // Safari 3.0+ "[object HTMLElementConstructor]" 
+                    if (/constructor/i.test(window.HTMLElement) ||
+                        ((p) => p.toString() === "[object SafariRemoteNotification]")(typeof window.safari !== 'undefined' && window.safari.pushNotification)) {
+                        return "Safari";
+                    }
+                    // Edge 20+
+                    if (!!window.StyleMedia) {
+                        return "Edge";
+                    }
+                    // Chrome 1 - 71
+                    if (!!window.chrome && (!!window.chrome.webstore || !!window.chrome.runtime)) {
+                        return "Chrome";
+                    }
+                }
+            }
+            Profile.AnalyticsVersionInfo = AnalyticsVersionInfo;
+        })(Profile = System.Profile || (System.Profile = {}));
+    })(System = Windows.System || (Windows.System = {}));
+})(Windows || (Windows = {}));
+var Windows;
+(function (Windows) {
     var UI;
     (function (UI) {
         var Core;
