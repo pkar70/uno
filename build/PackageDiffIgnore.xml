@@ -3476,7 +3476,13 @@
 				reason="Not part of the WinUI API." />
 			<Member
 				fullName="System.Void Windows.UI.Xaml.Shapes.Shape.SetStrokeDashEffect(Android.Graphics.Paint strokePaint)"
-				reason="Not part of the WinUI API." />																																																						
+				reason="Not part of the WinUI API." />
+      <Member
+				fullName="System.Void Windows.UI.Xaml.Controls.CalendarDatePicker.add_DateChanged(Windows.Foundation.TypedEventHandler`2&lt;Windows.UI.Xaml.Controls.CalendarDatePicker,Windows.UI.Xaml.Controls.CalendarDatePickerDateChangedEventArgs&gt; value)"
+				reason="removed some stuff"/>
+      <Member
+        fullName="System.Void Windows.UI.Xaml.Controls.CalendarDatePicker.remove_DateChanged(Windows.Foundation.TypedEventHandler`2&lt;Windows.UI.Xaml.Controls.CalendarDatePicker,Windows.UI.Xaml.Controls.CalendarDatePickerDateChangedEventArgs&gt; value)"
+				reason="removed some stuff"/>
 		</Methods>
 	</IgnoreSet>
 	<!--
