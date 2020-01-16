@@ -6,9 +6,10 @@ namespace Windows.ApplicationModel.DataTransfer
 {
 	public partial class DataPackage
 	{
+		public  global::Windows.ApplicationModel.DataTransfer.DataPackageOperation RequestedOperation { get; set; }
 		internal string Text { get; private set; }
+		internal string Html { get; private set; }
 
-#if !(NET461 || __MACOS__)
 		public void SetText(string text)
 		{
 			if (text == null)
@@ -18,6 +19,16 @@ namespace Windows.ApplicationModel.DataTransfer
 
 			this.Text = text;
 		}
-#endif
+
+		public  void SetHtmlFormat( string value)
+		{
+			if (value == null)
+			{
+				throw new ArgumentNullException("Value can't be null");
+			}
+
+			this.Html = value;
+		}
+
 	}
 }
