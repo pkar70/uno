@@ -7,7 +7,7 @@ namespace Windows.ApplicationModel.DataTransfer
 	#endif
 	public  partial class DataPackage 
 	{
-		#if __ANDROID__ || __IOS__ || NET461 || __WASM__ || __MACOS__
+		#if false || false || false || false || false
 		[global::Uno.NotImplemented]
 		public  global::Windows.ApplicationModel.DataTransfer.DataPackageOperation RequestedOperation
 		{
@@ -71,7 +71,7 @@ namespace Windows.ApplicationModel.DataTransfer
 			global::Windows.Foundation.Metadata.ApiInformation.TryRaiseNotImplemented("Windows.ApplicationModel.DataTransfer.DataPackage", "void DataPackage.SetDataProvider(string formatId, DataProviderHandler delayRenderer)");
 		}
 		#endif
-		#if false || false || NET461 || false || __MACOS__
+		#if false || false || false || false || false
 		[global::Uno.NotImplemented]
 		public  void SetText( string value)
 		{
@@ -85,7 +85,7 @@ namespace Windows.ApplicationModel.DataTransfer
 			global::Windows.Foundation.Metadata.ApiInformation.TryRaiseNotImplemented("Windows.ApplicationModel.DataTransfer.DataPackage", "void DataPackage.SetUri(Uri value)");
 		}
 		#endif
-		#if __ANDROID__ || __IOS__ || NET461 || __WASM__ || __MACOS__
+		#if false || false || false || false || false
 		[global::Uno.NotImplemented]
 		public  void SetHtmlFormat( string value)
 		{
