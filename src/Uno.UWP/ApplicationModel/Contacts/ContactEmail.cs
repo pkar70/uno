@@ -1,4 +1,4 @@
-using Uno.Logging;
+﻿using Uno.Logging;
 using Microsoft.Extensions.Logging;
 using Uno.Extensions;
 
@@ -25,5 +25,6 @@ namespace Windows.ApplicationModel.Contacts
 				}
 			}
 		}
+
 	}
 }
