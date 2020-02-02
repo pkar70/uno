@@ -118,6 +118,8 @@
     href: features\protocol-activation.md
   - name: VisibleBoundsPadding
     href: features\VisibleBoundsPadding.md
+  - name: Toasts
+    href: features\toasts.md
   - name: Windows.ApplicationModel
     href: features\windows-applicationmodel.md
   - name: Windows.ApplicationModel.Calls

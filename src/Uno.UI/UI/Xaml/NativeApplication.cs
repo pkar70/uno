@@ -49,29 +49,37 @@ namespace Windows.UI.Xaml
 			{
 				_app.InitializationCompleted();
 
-				var handled = false;
-				if (_lastHandledIntent != activity.Intent)
+				if (activity.Intent?.GetDoubleExtra("Uno.internal.IntentType", 0) == (int)ActivationKind.ToastNotification)
+				{			
+					ToastNotificationActivatedEventArgs toastActivated = new ToastNotificationActivatedEventArgs();
+					toastActivated.Argument = activity.Intent.GetStringExtra("Uno.internal.ToastArgument");
+					_app.OnActivated(toastActivated as IActivatedEventArgs);
+				}
+				else
 				{
-					_lastHandledIntent = activity.Intent;
-					if (activity.Intent?.Extras?.ContainsKey(JumpListItem.ArgumentsExtraKey) == true)
+					var handled = false;
+					if (_lastHandledIntent != activity.Intent)
 					{
-						_app.OnLaunched(new LaunchActivatedEventArgs(ActivationKind.Launch, activity.Intent.GetStringExtra(JumpListItem.ArgumentsExtraKey)));
-						handled = true;
-					}
-					else if (activity.Intent.Data != null)
-					{
-						if (Uri.TryCreate(activity.Intent.Data.ToString(), UriKind.Absolute, out var uri))
+						_lastHandledIntent = activity.Intent;
+						if (activity.Intent?.Extras?.ContainsKey(JumpListItem.ArgumentsExtraKey) == true)
 						{
-							_app.OnActivated(new ProtocolActivatedEventArgs(uri, _isRunning ? ApplicationExecutionState.Running : ApplicationExecutionState.NotRunning));
+							_app.OnLaunched(new LaunchActivatedEventArgs(ActivationKind.Launch, activity.Intent.GetStringExtra(JumpListItem.ArgumentsExtraKey)));
 							handled = true;
 						}
-						else
+						else if (activity.Intent.Data != null)
 						{
-							// log error and fall back to normal launch
-							this.Log().LogError($"Activation URI {activity.Intent.Data} could not be parsed");
+							if (Uri.TryCreate(activity.Intent.Data.ToString(), UriKind.Absolute, out var uri))
+							{
+								_app.OnActivated(new ProtocolActivatedEventArgs(uri, _isRunning ? ApplicationExecutionState.Running : ApplicationExecutionState.NotRunning));
+								handled = true;
+							}
+							else
+							{
+								// log error and fall back to normal launch
+								this.Log().LogError($"Activation URI {activity.Intent.Data} could not be parsed");
+							}
 						}
 					}
-				}
 
 				// default to normal launch
 				if (!handled && !_isRunning)
