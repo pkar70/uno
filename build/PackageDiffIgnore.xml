@@ -3259,6 +3259,10 @@
 			<Member
 				fullName="System.Void Microsoft.UI.Xaml.Controls.TabView.set_TabItems(System.Collections.Generic.IList`1&lt;System.Object&gt; value)"
 				reason="Not part of the UWP API"/>
+      <Member
+             fullName="System.Void Windows.ApplicationModel.Chat.ChatMessageReader..ctor()"
+             reason="Not part of the UWP API"/>
+    </Methods>
 		</Methods>
 		<Fields>
 			<Member
