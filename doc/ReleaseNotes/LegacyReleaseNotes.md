@@ -2,10 +2,26 @@
 
 ### Features
 
-- Added new `ElevatedView` in the `Uno.Toolkit` to provide elevation & rounded corners on all platforms
-  (not supported on Windows yet, because Uno needs to target framework `10.0.18362.0`)
 - [Android] Support for `Application.Current.Exit`
 - Support for `Windows.Storage.FileProperties.BasicProperties.DateModified`
+
+### Breaking changes
+- Uno is now built using VS2019 16.4, and does not support building applications with Visual Studio 2017.
+  Linker errors may occur such as:
+  ```
+  Java.Interop.Tools.Diagnostics.XamarinAndroidException: error XA2006: Could not resolve reference to 'System.Collections.Generic.Queue`1'
+  (defined in assembly 'Uno.UI, Version=255.255.255.255, Culture=neutral, PublicKeyToken=null') with scope 'mscorlib, Version=2.0.5.0,
+  Culture=neutral, PublicKeyToken=7cec85d7bea7798e'.
+  ```
+
+### Bug fixes
+- 
+
+## Release 2.1
+
+### Features
+- Added new `ElevatedView` in the `Uno.Toolkit` to provide elevation & rounded corners on all platforms
+  (not supported on Windows yet, because Uno needs to target framework `10.0.18362.0`)
 - Added CornerRadius support to more default styles to match UWP (for list of updated styles see PR [#2713])
 - Support for `FontIcon` on macOS
 - Support for `PhoneCallManager.ShowPhoneCallUI` on macOS
@@ -51,12 +67,18 @@
 - Add template tags for the VS2019 VSIX template search experience
 - [iOS] #2746 Fix border thickness when a corner radius is set
 - [Android] #2762 ProgressRing wasn't displaying inside a StackPanel
+- #2797 Stack overflow in ListView when changing SelectedItem to and from invalid value
+- [Android] #2761 Control with AreDimensionsConstrained and Margin set not measured correctly
 
 ### Breaking changes
 - `IconElement.AddIconElementView` is now `internal` so it is not accessible from outside.
+- `Thumb.DragStarted.<Horizontal|Vertical>Offset` are now fullfilled (was always 0)
+- `Thumb.Drag<Delta|Completed>.<Horizontal|Vertical>` are now relative to the last event (was cummulative / relative to the started)
+- On iOS, the parent of the `ListViwItem` is now the `NativeListViewBase` (was the `ListView` it self) as described here https://github.com/unoplatform/uno/blob/master/doc/articles/controls/ListViewBase.md#difference-in-the-visual-tree
 
 ### Bug fixes
 
+- [iOS] Applying a `<RenderTransform>` on an image was producing an incorrect layout result.
 - Adjust `CornerRadius` for `Button` style to apply properly
 - Add support for `CornerRadius` in default `ComboBox` style
 - Fix for samples app compilation for macOS
@@ -98,6 +120,13 @@
 - [Android] Adjust `TextBlock.TextDecorations` is not updating properly
 - Adjust `XamlBindingHelper` for `GridLength` and `TimeSpan`
 - Add missing `ListView` resources
+- [WASM] Setting null to the Fill no longer fill shapes in black
+- Shapes was not able to receive pointer events
+- [WASM] Invisble Shapes no longer prevent sub-elements to receive the pointer events
+- `Thumb.DragStarted.<Horizontal|Vertical>Offset` are now fullfilled (was always 0)
+- `Thumb.Drag<Delta|Completed>.<Horizontal|Vertical>` are now relative to the last event (was cummulative / relative to the started)
+- Thumb now handles the PointyerPressed event (like WinUI)
+- [WASM] Inserting an element at index 0 was appending the element instead of prepending it.
 - #2570 [Android/iOS] fixed ObjectDisposedException in BindingPath
 - #2107 [iOS] fixed ContentDialog doesn't block touch for background elements
 - #2108 [iOS/Android] fixed ContentDialog background doesn't change
