@@ -88,7 +88,7 @@
     <PackageReference Include="Uno.UniversalImageLoader" Version="1.9.32" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MSTest.TestFramework" Version="2.1.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.1.1" />
     <PackageReference Include="Uno.SourceGenerationTasks" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Filter" Version="1.1.1" />
@@ -144,6 +144,10 @@
   <ItemGroup>
     <AndroidAsset Include="Assets\Fonts\winjs-symbols.ttf" />
     <AndroidEnvironment Include="environment.conf" />
+    <AndroidAsset Include="Assets\Lottie\4770-lady-and-dove.json" />
+    <AndroidAsset Include="Assets\Lottie\4930-checkbox-animation.json" />
+    <AndroidAsset Include="Assets\Lottie\lottie-logo.json" />
+    <AndroidAsset Include="Assets\Lottie\uno.json" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
   </ItemGroup>
