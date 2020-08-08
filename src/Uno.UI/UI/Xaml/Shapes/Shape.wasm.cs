@@ -37,9 +37,9 @@ namespace Windows.UI.Xaml.Shapes
 		protected void InitCommonShapeProperties() // Should be called from base class constructor
 		{
 			// Initialize
-			OnFillUpdatedPartial();
-			OnStrokeUpdatedPartial();
-			OnStrokeThicknessUpdatedPartial();
+			OnFillUpdatedPartial(); // Required to properly update the HitTest
+			// Don't OnStrokeUpdatedPartial(); => Stroke is still at its default value in the ctor, and it will always results to ResetStyle("stroke")
+			// Don't OnStrokeThicknessUpdatedPartial(); => The default value is set in Uno.UI.css
 		}
 
 		protected abstract SvgElement GetMainSvgElement();
@@ -80,20 +80,24 @@ namespace Windows.UI.Xaml.Shapes
 			switch (fill)
 			{
 				case SolidColorBrush scb:
-					svgElement.SetStyle("fill", scb.Color.ToHexString());
+					svgElement.SetStyle("fill", scb.ColorWithOpacity.ToHexString());
 					_fillBrushSubscription.Disposable = null;
 					break;
 				case ImageBrush ib:
 					_fillBrushSubscription.Disposable = null;
 					break;
-				case LinearGradientBrush lgb:
-					var linearGradient = lgb.ToSvgElement();
-					var gradientId = linearGradient.HtmlId;
-					GetDefs().Add(linearGradient);
+				case GradientBrush gb:
+					var gradient = gb.ToSvgElement();
+					var gradientId = gradient.HtmlId;
+					GetDefs().Add(gradient);
 					svgElement.SetStyle("fill", $"url(#{gradientId})");
 					_fillBrushSubscription.Disposable = new DisposableAction(
-						() => GetDefs().Remove(linearGradient)
+						() => GetDefs().Remove(gradient)
 					);
+					break;
+				case AcrylicBrush ab:
+					svgElement.SetStyle("fill", ab.FallbackColorWithOpacity.ToHexString());
+					_fillBrushSubscription.Disposable = null;
 					break;
 				case null:
 					// The default is black if the style is not set in Web's' SVG. So if the Fill property is not set,
@@ -115,17 +119,21 @@ namespace Windows.UI.Xaml.Shapes
 			switch (Stroke)
 			{
 				case SolidColorBrush scb:
-					svgElement.SetStyle("stroke", scb.Color.ToHexString());
+					svgElement.SetStyle("stroke", scb.ColorWithOpacity.ToHexString());
 					_strokeBrushSubscription.Disposable = null;
 					break;
-				case LinearGradientBrush lgb:
-					var linearGradient = lgb.ToSvgElement();
-					var gradientId = linearGradient.HtmlId;
-					GetDefs().Add(linearGradient);
+				case GradientBrush gb:
+					var gradient = gb.ToSvgElement();
+					var gradientId = gradient.HtmlId;
+					GetDefs().Add(gradient);
 					svgElement.SetStyle("stroke", $"url(#{gradientId})");
 					_strokeBrushSubscription.Disposable = new DisposableAction(
-						() => GetDefs().Remove(linearGradient)
+						() => GetDefs().Remove(gradient)
 					);
+					break;
+				case AcrylicBrush ab:
+					svgElement.SetStyle("stroke", ab.FallbackColorWithOpacity.ToHexString());
+					_strokeBrushSubscription.Disposable = null;
 					break;
 				default:
 					svgElement.ResetStyle("stroke");
@@ -140,13 +148,14 @@ namespace Windows.UI.Xaml.Shapes
 		{
 			var svgElement = GetMainSvgElement();
 
-			if (Stroke == null)
+			var strokeThickness = StrokeThickness;
+			if (strokeThickness == default)
 			{
 				svgElement.ResetStyle("stroke-width");
 			}
 			else
 			{
-				svgElement.SetStyle("stroke-width", $"{StrokeThickness}px");
+				svgElement.SetStyle("stroke-width", $"{strokeThickness}px");
 			}
 		}
 
@@ -154,7 +163,7 @@ namespace Windows.UI.Xaml.Shapes
 		{
 			var svgElement = GetMainSvgElement();
 
-			if (Stroke == null)
+			if (StrokeDashArray == null)
 			{
 				svgElement.ResetStyle("stroke-dasharray");
 			}

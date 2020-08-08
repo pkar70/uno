@@ -5,6 +5,15 @@ This is an experimental implementation, **still incomplete**.
 
 ## Using the `LottieVisualSource`:
 
+Add the following namespaces:
+```xml
+<Page
+    ...
+    xmlns:winui="using:Microsoft.UI.Xaml.Controls"
+	xmlns:lottie="using:Microsoft.Toolkit.Uwp.UI.Lottie"
+    ...>
+```
+
 ```xml
 <winui:AnimatedVisualPlayer
     x:Name="player"
@@ -32,6 +41,20 @@ On WASM, iOS and macOS, you can put the Lottie .json files directly in a folder 
 On Android, Lottie .json files need to be added into the Assets folder. To match the same path as for the other platforms, the file could be stored at "Assets/Lottie/myanimation.json". Set its Build action to AndroidAsset.
 
 To reference the animations in XAML, use the `ms-appx:` URI, in this case `ms-appx:///Lottie/myanimation.json`.
+
+## Using `embedded://` scheme
+
+**WARNING**: Not supported on Windows, it's a Uno-only feature.
+
+You can put the file as `<EmbeddedResource>` in your assembly and retrieve it using the following url format as `UriSource`:
+
+```
+embedded://<assemblyname>/<resource name>
+```
+
+* You can specify `.` in assembly name to use the Application's assembly.
+* You can specify `(assembly)` in path: will be replaced by assembly name.
+* AssemblyName is case insensitive, **but the resource name is**.
 
 ## Limitations
 

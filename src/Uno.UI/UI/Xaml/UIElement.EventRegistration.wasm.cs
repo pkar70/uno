@@ -11,13 +11,14 @@ namespace Windows.UI.Xaml
 {
 	partial class UIElement
 	{
+		private delegate bool RawEventHandler(UIElement sender, string paylaod);
+
 		private class EventRegistration
 		{
-			private static readonly string[] noRegistrationEventNames = { "loading", "loaded", "unloaded" };
+			private static readonly string[] noRegistrationEventNames = { "loading", "loaded", "unloaded", "pointerenter", "pointerleave", "pointerdown", "pointerup", "pointercancel" };
 
 			private readonly UIElement _owner;
 			private readonly string _eventName;
-			private readonly bool _canBubbleNatively;
 			private readonly EventArgsParser _payloadConverter;
 			private readonly Action _subscribeCommand;
 
@@ -30,26 +31,18 @@ namespace Windows.UI.Xaml
 				UIElement owner,
 				string eventName,
 				bool onCapturePhase = false,
-				bool canBubbleNatively = false,
-				HtmlEventFilter? eventFilter = null,
 				HtmlEventExtractor? eventExtractor = null,
 				EventArgsParser payloadConverter = null)
 			{
 				_owner = owner;
 				_eventName = eventName;
-				_canBubbleNatively = canBubbleNatively;
 				_payloadConverter = payloadConverter;
-				if (noRegistrationEventNames.Contains(eventName))
-				{
-					_subscribeCommand = null;
-				}
-				else
+				if (!noRegistrationEventNames.Contains(eventName))
 				{
 					_subscribeCommand = () => WindowManagerInterop.RegisterEventOnView(
 						_owner.HtmlId,
 						eventName,
 						onCapturePhase,
-						(int)(eventFilter ?? HtmlEventFilter.None),
 						(int)(eventExtractor ?? HtmlEventExtractor.None)
 					);
 				}
@@ -113,18 +106,23 @@ namespace Windows.UI.Xaml
 						args = _payloadConverter(_owner, nativeEventPayload);
 					}
 
-					if (args is RoutedEventArgs routedArgs)
-					{
-						routedArgs.CanBubbleNatively = _canBubbleNatively;
-					}
-
 					foreach (var handler in _invocationList)
 					{
-						var result = handler.DynamicInvoke(_owner, args);
-
-						if (result is bool isHandedInManaged && isHandedInManaged)
+						if (handler is RawEventHandler rawHandler)
 						{
-							return true; // will call ".preventDefault()" in JS to prevent native bubbling
+							if (rawHandler(_owner, nativeEventPayload))
+							{
+								return true;
+							}
+						}
+						else
+						{
+							var result = handler.DynamicInvoke(_owner, args);
+
+							if (result is bool isHandedInManaged && isHandedInManaged)
+							{
+								return true; // will call ".preventDefault()" in JS to prevent native bubbling
+							}
 						}
 					}
 
@@ -157,8 +155,6 @@ namespace Windows.UI.Xaml
 			string eventName,
 			Delegate handler,
 			bool onCapturePhase = false,
-			bool canBubbleNatively = false,
-			HtmlEventFilter? eventFilter = null,
 			HtmlEventExtractor? eventExtractor = null,
 			EventArgsParser payloadConverter = null)
 		{
@@ -173,8 +169,6 @@ namespace Windows.UI.Xaml
 					this,
 					eventName,
 					onCapturePhase,
-					canBubbleNatively,
-					eventFilter,
 					eventExtractor,
 					payloadConverter);
 			}
@@ -206,11 +200,11 @@ namespace Windows.UI.Xaml
 
 				var registered = string.Join(", ", _eventHandlers.Keys);
 
-				this.Log().Warn(message: $"{this}: No Handler for {n}. Registered: {registered}");
+				this.Log().Warn(message: $"{this}-{HtmlId}: No Handler for {n}. Registered: {registered}");
 			}
 			catch (Exception e)
 			{
-				this.Log().Error(message: $"{this}/{eventName}/\"{nativeEventPayload}\": Error: {e}");
+				this.Log().Error(message: $"{this}-{HtmlId}/{eventName}/\"{nativeEventPayload}\": Error: {e}");
 				Application.Current.RaiseRecoverableUnhandledExceptionOrLog(e, this);
 			}
 
@@ -246,13 +240,6 @@ namespace Windows.UI.Xaml
 			FocusEventExtractor = 4,
 			CustomEventDetailStringExtractor = 5, // For use with CustomEvent("name", {detail:{string detail here}})
 			CustomEventDetailJsonExtractor = 6, // For use with CustomEvent("name", {detail:{detail here}}) - will be JSON.stringify
-		}
-
-		internal enum HtmlEventFilter : int
-		{
-			None = 0,
-			Default = 1,
-			LeftPointerEventFilter = 2,
 		}
 	}
 }

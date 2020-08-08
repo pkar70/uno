@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Web;
+using Windows.Foundation;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -41,7 +42,7 @@ namespace Uno.UI.UI.Xaml.Documents
 			}
 			else
 			{
-				var value = (FontStyle) localValue;
+				var value = (FontStyle)localValue;
 				switch (value)
 				{
 					case FontStyle.Normal:
@@ -77,7 +78,7 @@ namespace Uno.UI.UI.Xaml.Documents
 			}
 			else
 			{
-				var value = (FontFamily) localValue;
+				var value = (FontFamily)localValue;
 				if (value != null)
 				{
 					var actualFontFamily = value.Source;
@@ -106,7 +107,15 @@ namespace Uno.UI.UI.Xaml.Documents
 
 		internal static void SetMaxLines(this UIElement element, object localValue)
 		{
-			// Not available yet
+			if (localValue is UnsetValue)
+			{
+				element.ResetStyle("display", "-webkit-line-clamp", "webkit-box-orient");
+			}
+			else
+			{
+				var value = (int)localValue;
+				element.SetStyle(("display", "-webkit-box"), ("-webkit-line-clamp", value.ToStringInvariant()), ("-webkit-box-orient", "vertical"));
+			}
 		}
 
 		private static void SetTextTrimming(this UIElement element, object localValue)
@@ -139,12 +148,25 @@ namespace Uno.UI.UI.Xaml.Documents
 				case SolidColorBrush scb:
 					element.SetStyle("color", scb.ColorWithOpacity.ToHexString());
 					break;
+				case GradientBrush gradient:
+					element.SetStyle(
+						("background", gradient.ToCssString(element.RenderSize)),
+						("color", "transparent"),
+						("background-clip", "text")
+					);
+					break;
+
+				case AcrylicBrush acrylic:
+					acrylic.Apply(element);
+					element.SetStyle("background-clip", "text");
+					break;
 
 				case UnsetValue uv:
 
 				// TODO: support other foreground types
 				default:
-					element.ResetStyle("color");
+					element.ResetStyle("color", "background", "background-clip");
+					AcrylicBrush.ResetStyle(element);
 					break;
 			}
 		}
@@ -157,7 +179,7 @@ namespace Uno.UI.UI.Xaml.Documents
 			}
 			else
 			{
-				var value = (int) localValue;
+				var value = (int)localValue;
 				element.SetStyle("letter-spacing", (value / 1000.0).ToStringInvariant() + "em");
 			}
 		}
@@ -170,7 +192,7 @@ namespace Uno.UI.UI.Xaml.Documents
 			}
 			else
 			{
-				var value = (double) localValue;
+				var value = (double)localValue;
 				if (Math.Abs(value) < 0.0001)
 				{
 					element.ResetStyle("line-height");
@@ -190,7 +212,7 @@ namespace Uno.UI.UI.Xaml.Documents
 			}
 			else
 			{
-				var value = (TextAlignment) localValue;
+				var value = (TextAlignment)localValue;
 				switch (value)
 				{
 					case TextAlignment.Left:
@@ -221,7 +243,7 @@ namespace Uno.UI.UI.Xaml.Documents
 			}
 			else
 			{
-				var value = (TextWrapping) textWrapping;
+				var value = (TextWrapping)textWrapping;
 				switch (value)
 				{
 					case TextWrapping.NoWrap:

@@ -1,6 +1,6 @@
 // #define LOG_LAYOUT
 
-#if !__WASM__
+#if !NETSTANDARD2_0
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +44,7 @@ using View = Windows.UI.Xaml.UIElement;
 
 namespace Windows.UI.Xaml.Controls
 {
-	public abstract partial class Layouter : ILayouter
+	internal abstract partial class Layouter : ILayouter
 	{
 		private static readonly IEventProvider _trace = Tracing.Get(FrameworkElement.TraceProvider.Id);
 		private readonly ILogger _logDebug;
@@ -128,7 +128,9 @@ namespace Windows.UI.Xaml.Controls
 
 				var clippedDesiredSize = desiredSize
 					.AtMost(frameworkAvailableSize)
-					.Add(marginSize);
+					.Add(marginSize)
+					// Margin may be negative
+					.AtLeastZero();
 
 				// DesiredSize must include margins
 				// TODO: on UWP, it's not clipped. See test When_MinWidth_SmallerThan_AvailableSize

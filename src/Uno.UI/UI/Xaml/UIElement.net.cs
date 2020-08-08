@@ -19,6 +19,16 @@ namespace Windows.UI.Xaml
 
 		public string Name { get; set; }
 
+		/// <summary>
+		/// Determines if InvalidateMeasure has been called
+		/// </summary>
+		internal bool IsMeasureDirty => false;
+
+		/// <summary>
+		/// Determines if InvalidateArrange has been called
+		/// </summary>
+		internal bool IsArrangeDirty => false;
+
 		internal bool IsPointerCaptured { get; set; }
 
 		public int MeasureCallCount { get; protected set; }
@@ -49,5 +59,7 @@ namespace Windows.UI.Xaml
 		protected virtual void OnVisibilityChanged(Visibility oldValue, Visibility newVisibility)
 		{
 		}
+
+		public string ShowLocalVisualTree(int fromHeight = 1000) => Uno.UI.ViewExtensions.ShowLocalVisualTree(this, fromHeight);
 	}
 }

@@ -11,11 +11,14 @@ using Windows.UI.Xaml.Input;
 using Microsoft.Extensions.Logging;
 using Uno.Extensions;
 using Uno.UI;
+using Uno.Disposables;
+using Uno.UI.Xaml;
 
 namespace Windows.UI.Xaml
 {
 	public partial class FrameworkElement : UIElement, IFrameworkElement
 	{
+		private readonly SerialDisposable _backgroundSubscription = new SerialDisposable();
 		public T FindFirstParent<T>() where T : class
 		{
 			var view = this.Parent;
@@ -33,7 +36,15 @@ namespace Windows.UI.Xaml
 
 		partial void Initialize();
 
-		public FrameworkElement(string htmlTag = "div", bool isSvg = false) : base(htmlTag, isSvg)
+		public FrameworkElement() : this(DefaultHtmlTag, false)
+		{
+		}
+
+		public FrameworkElement(string htmlTag) : this(htmlTag, false)
+		{
+		}
+
+		public FrameworkElement(string htmlTag, bool isSvg) : base(htmlTag, isSvg)
 		{
 			Initialize();
 
@@ -58,34 +69,34 @@ namespace Windows.UI.Xaml
 			internal set;
 		} = DefaultBaseUri;
 
-		protected virtual void OnLoaded()
+		private protected virtual void OnLoaded()
 		{
 
 		}
 
-		protected virtual void OnUnloaded()
+		private protected virtual void OnUnloaded()
 		{
 
 		}
 
 		#region Transitions Dependency Property
 
+		[GeneratedDependencyProperty(DefaultValue = null, ChangedCallback = true)]
+		public static DependencyProperty TransitionsProperty { get; } = CreateTransitionsProperty();
+
 		public TransitionCollection Transitions
 		{
-			get { return (TransitionCollection)this.GetValue(TransitionsProperty); }
-			set { this.SetValue(TransitionsProperty, value); }
+			get => GetTransitionsValue();
+			set => SetTransitionsValue(value);
 		}
 
-		public static readonly DependencyProperty TransitionsProperty =
-			DependencyProperty.Register("Transitions", typeof(TransitionCollection), typeof(FrameworkElement), new PropertyMetadata(null, OnTransitionsChanged));
-
-		private static void OnTransitionsChanged(object dependencyObject, DependencyPropertyChangedEventArgs args)
+		private void OnTransitionsChanged(DependencyPropertyChangedEventArgs args)
 		{
 
 		}
 		#endregion
 
-		public IFrameworkElement FindName(string name)
+		public object FindName(string name)
 			=> IFrameworkElementHelper.FindName(this, GetChildren(), name);
 
 
@@ -101,21 +112,55 @@ namespace Windows.UI.Xaml
 
 		#region Background DependencyProperty
 
+		[GeneratedDependencyProperty(DefaultValue = null, ChangedCallback = true)]
+		public static DependencyProperty BackgroundProperty { get; } = CreateBackgroundProperty();
+
 		public Brush Background
 		{
-			get => (Brush)GetValue(BackgroundProperty);
-			set => SetValue(BackgroundProperty, value);
+			get => GetBackgroundValue();
+			set => SetBackgroundValue(value);
 		}
-
-		// Using a DependencyProperty as the backing store for Background.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty BackgroundProperty =
-			DependencyProperty.Register("Background", typeof(Brush), typeof(FrameworkElement), new PropertyMetadata(null, (s, e) => ((FrameworkElement)s)?.OnBackgroundChanged(e)));
-
 
 		protected virtual void OnBackgroundChanged(DependencyPropertyChangedEventArgs e)
 		{
+			_backgroundSubscription.Disposable = null;
 			var brush = e.NewValue as Brush;
 			SetBackgroundBrush(brush);
+
+			if (brush is ImageBrush imgBrush)
+			{
+				RecalculateBrushOnSizeChanged(false);
+				_backgroundSubscription.Disposable = imgBrush.Subscribe(img =>
+				{
+					switch (img.Kind)
+					{
+						case ImageDataKind.Empty:
+						case ImageDataKind.Error:
+							ResetStyle("background-color", "background-image", "background-size");
+							break;
+
+						case ImageDataKind.Base64:
+						case ImageDataKind.Url:
+						default:
+							SetStyle(
+								("background-color", ""),
+								("background-origin", "content-box"),
+								("background-position", imgBrush.ToCssPosition()),
+								("background-size", imgBrush.ToCssBackgroundSize()),
+								("background-image", "url(" + img.Value + ")")
+							);
+							break;
+					}
+				});
+			}
+			else if (brush is AcrylicBrush acrylicBrush)
+			{
+				_backgroundSubscription.Disposable = acrylicBrush.Subscribe(this);
+			}
+			else
+			{
+				_backgroundSubscription.Disposable = Brush.AssignAndObserveBrush(brush, _ => SetBackgroundBrush(brush));
+			}
 		}
 
 		private protected void SetBackgroundBrush(Brush brush)
@@ -125,31 +170,32 @@ namespace Windows.UI.Xaml
 				case SolidColorBrush solidColorBrush:
 					var color = solidColorBrush.ColorWithOpacity;
 					SetStyle("background-color", color.ToHexString());
+					ResetStyle("background-image");
 					RecalculateBrushOnSizeChanged(false);
 					break;
-				case LinearGradientBrush linearGradientBrush:
-					SetStyle("background", linearGradientBrush.ToCssString(RenderSize));
-					RecalculateBrushOnSizeChanged(true);
-					break;
-				default:
+				case GradientBrush gradientBrush:
 					ResetStyle("background-color");
-					ResetStyle("background");
+					SetStyle("background-image", gradientBrush.ToCssString(RenderSize));
+					RecalculateBrushOnSizeChanged(true);
+					break;				
+				default:
+					ResetStyle("background-color", "background-image", "background-size");
 					RecalculateBrushOnSizeChanged(false);
 					break;
 			}
 		}
 
-		private static SizeChangedEventHandler _onSizeChangedForBrushCalculation = (sender, args) =>
+		private static readonly SizeChangedEventHandler _onSizeChangedForBrushCalculation = (sender, args) =>
 		{
 			var fe = sender as FrameworkElement;
 			fe.SetBackgroundBrush(fe.Background);
 		};
 
-		private bool onSizeChangedForBrushCalculatioSet = false;
+		private bool _onSizeChangedForBrushCalculationSet = false;
 
 		private void RecalculateBrushOnSizeChanged(bool shouldRecalculate)
 		{
-			if (onSizeChangedForBrushCalculatioSet == shouldRecalculate)
+			if (_onSizeChangedForBrushCalculationSet == shouldRecalculate)
 			{
 				return;
 			}
@@ -163,7 +209,7 @@ namespace Windows.UI.Xaml
 				SizeChanged -= _onSizeChangedForBrushCalculation;
 			}
 
-			onSizeChangedForBrushCalculatioSet = shouldRecalculate;
+			_onSizeChangedForBrushCalculationSet = shouldRecalculate;
 		}
 
 		#endregion
@@ -172,29 +218,20 @@ namespace Windows.UI.Xaml
 
 		public event DependencyPropertyChangedEventHandler IsEnabledChanged;
 
+		[GeneratedDependencyProperty(DefaultValue = true, ChangedCallback = true, CoerceCallback = true, Options = FrameworkPropertyMetadataOptions.Inherits)]
+		public static DependencyProperty IsEnabledProperty { get; } = CreateIsEnabledProperty();
+
 		public bool IsEnabled
 		{
-			get { return (bool)GetValue(IsEnabledProperty); }
-			set { SetValue(IsEnabledProperty, value); }
+			get => GetIsEnabledValue();
+			set => SetIsEnabledValue(value);
 		}
 
-		public static readonly DependencyProperty IsEnabledProperty =
-			DependencyProperty.Register(
-				name: "IsEnabled",
-				propertyType: typeof(bool),
-				ownerType: typeof(FrameworkElement),
-				typeMetadata: new FrameworkPropertyMetadata(
-					defaultValue: true,
-					options: FrameworkPropertyMetadataOptions.Inherits,
-					propertyChangedCallback: (s, e) =>
-					{
-						var elt = (FrameworkElement)s;
-						elt?.OnIsEnabledChanged((bool)e.OldValue, (bool)e.NewValue);
-						elt?.IsEnabledChanged?.Invoke(s, e);
-					},
-					coerceValueCallback: (s, v) => (s as FrameworkElement)?.CoerceIsEnabled(v)
-				)
-		);
+		protected virtual void OnIsEnabledChanged(DependencyPropertyChangedEventArgs args)
+		{
+			OnIsEnabledChanged((bool)args.OldValue, (bool)args.NewValue);
+			IsEnabledChanged?.Invoke(this, args);
+		}
 
 		protected virtual void OnIsEnabledChanged(bool oldValue, bool newValue)
 		{

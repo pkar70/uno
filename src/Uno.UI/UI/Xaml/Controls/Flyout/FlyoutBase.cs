@@ -42,16 +42,15 @@ namespace Windows.UI.Xaml.Controls.Primitives
 		{
 			if (_popup == null)
 			{
-				LightDismissOverlayBackground = Application.Current?.Resources["FlyoutLightDismissOverlayBackground"] as Brush ??
-											// This is normally a no-op - the above line should retrieve the framework-level resource. This is purely to fail the build when
-											// Resources/Styles are overhauled (and the above will no longer be valid)
-											Uno.UI.GlobalStaticResources.FlyoutLightDismissOverlayBackground as Brush;
+				ResourceResolver.ApplyResource(this, LightDismissOverlayBackgroundProperty, "FlyoutLightDismissOverlayBackground", isThemeResourceExtension: true);
 
 				_popup = new Windows.UI.Xaml.Controls.Popup()
 				{
 					Child = CreatePresenter(),
 					IsLightDismissEnabled = _isLightDismissEnabled,
 				};
+
+				SynchronizeTemplatedParent();
 
 				_popup.Opened += OnPopupOpened;
 				_popup.Closed += OnPopupClosed;
@@ -158,8 +157,8 @@ namespace Windows.UI.Xaml.Controls.Primitives
 			set { SetValue(LightDismissOverlayBackgroundProperty, value); }
 		}
 
-		internal static readonly DependencyProperty LightDismissOverlayBackgroundProperty =
-			DependencyProperty.Register("LightDismissOverlayBackground", typeof(Brush), typeof(FlyoutBase), new PropertyMetadata(null));
+		internal static DependencyProperty LightDismissOverlayBackgroundProperty { get ; } =
+			DependencyProperty.Register("LightDismissOverlayBackground", typeof(Brush), typeof(FlyoutBase), new FrameworkPropertyMetadata(null));
 
 		public FrameworkElement Target { get; private set; }
 
@@ -264,7 +263,10 @@ namespace Windows.UI.Xaml.Controls.Primitives
 
 		protected internal virtual void Close()
 		{
-			_popup.IsOpen = false;
+			if (_popup != null)
+			{
+				_popup.IsOpen = false; 
+			}
 		}
 
 		protected internal virtual void Open()
@@ -286,6 +288,9 @@ namespace Windows.UI.Xaml.Controls.Primitives
 			_popup?.SetValue(Popup.DataContextProperty, this.DataContext, precedence: DependencyPropertyValuePrecedences.Local);
 
 		partial void OnTemplatedParentChangedPartial(DependencyPropertyChangedEventArgs e)
+			=> SynchronizeTemplatedParent();
+
+		private void SynchronizeTemplatedParent()
 		{
 			_popup?.SetValue(Popup.TemplatedParentProperty, TemplatedParent, precedence: DependencyPropertyValuePrecedences.Local);
 		}
@@ -329,6 +334,6 @@ namespace Windows.UI.Xaml.Controls.Primitives
 			}
 		}
 
-		internal Control GetPresenter() => _popup.Child as Control;
+		internal Control GetPresenter() => _popup?.Child as Control;
 	}
 }

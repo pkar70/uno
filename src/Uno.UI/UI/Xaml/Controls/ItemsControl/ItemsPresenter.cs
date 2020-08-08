@@ -35,7 +35,7 @@ namespace Windows.UI.Xaml.Controls
 			}
 		}
 
-		protected override void OnLoaded()
+		private protected override void OnLoaded()
 		{
 			base.OnLoaded();
 
@@ -68,7 +68,7 @@ namespace Windows.UI.Xaml.Controls
 				"Padding",
 				typeof(Thickness),
 				typeof(ItemsPresenter),
-				new PropertyMetadata(
+				new FrameworkPropertyMetadata(
 					(Thickness)Thickness.Empty,
 					(s, e) => ((ItemsPresenter)s)?.OnPaddingChanged((Thickness)e.OldValue, (Thickness)e.NewValue)
 				)
@@ -128,7 +128,7 @@ namespace Windows.UI.Xaml.Controls
 				this.AddSubview(_itemsPanel);
 #elif XAMARIN_ANDROID
 			this.AddView(_itemsPanel);
-#elif __WASM__
+#elif NETSTANDARD || NET461
 			AddChild(_itemsPanel);
 #endif
 
@@ -140,14 +140,14 @@ namespace Windows.UI.Xaml.Controls
 
 		private void RemoveChildViews()
 		{
-#if XAMARIN_IOS
+#if XAMARIN_IOS || __MACOS__
 			foreach (var subview in this.Subviews)
 			{
 				subview.RemoveFromSuperview();
 			}
 #elif XAMARIN_ANDROID
 			this.RemoveAllViews();
-#elif __WASM__
+#elif NETSTANDARD
 			ClearChildren();
 #endif
 		}

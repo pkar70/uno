@@ -8,6 +8,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Uno.UI;
+using Windows.UI;
 
 namespace Windows.UI.Xaml.Documents
 {
@@ -90,20 +91,11 @@ namespace Windows.UI.Xaml.Documents
 		private void OnUnderlineStyleChanged()
 		{
 			TextDecorations = UnderlineStyle == UnderlineStyle.Single
-				? Text.TextDecorations.Underline
-				: Text.TextDecorations.None;
+				? Windows.UI.Text.TextDecorations.Underline
+				: Windows.UI.Text.TextDecorations.None;
 		}
 
 		#endregion
-
-		protected override void OnStyleChanged()
-		{
-			if (Style == null)
-			{
-				base.Style = Style.DefaultStyleForType(typeof(Hyperlink));
-				base.Style.ApplyTo(this);
-			}
-		}
 
 		#region Click
 		private Pointer _pressedPointer;
@@ -163,7 +155,7 @@ namespace Windows.UI.Xaml.Documents
 		private Brush GetPressedForeground()
 		{
 #if XAMARIN
-			var normalColor = (Foreground as SolidColorBrush).ColorWithOpacity;
+			var normalColor = Brush.GetColorWithOpacity(Foreground, Colors.Transparent).Value;
 			var pressedColor = Color.FromArgb((byte)(normalColor.A / 2), normalColor.R, normalColor.G, normalColor.B);
 			return new SolidColorBrush(pressedColor);
 #else

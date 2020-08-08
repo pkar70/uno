@@ -71,6 +71,11 @@ jobs:
         UITEST_TEST_MODE_NAME: Snapshots
         UITEST_SNAPSHOTS_ONLY: true
 
+      # Android 10 testing is disabled because of https://github.com/microsoft/appcenter/issues/1451
+      # Android_10.0:
+      #   ANDROID_SIMULATOR_APILEVEL: 29
+      #   UITEST_TEST_MODE_NAME: Automated
+
   steps:
   - checkout: self
     clean: true
@@ -103,7 +108,15 @@ jobs:
     inputs:
       testRunTitle: 'Android $(ANDROID_SIMULATOR_APILEVEL) $(UITEST_TEST_MODE_NAME) Test Run'
       testResultsFormat: 'NUnit'
-      testResultsFiles: '$(build.sourcesdirectory)/build/TestResult.xml'
+      testResultsFiles: '$(build.sourcesdirectory)/build/TestResult-original.xml'
+      failTaskOnFailedTests: false
+
+  - task: PublishTestResults@2
+    condition: always()
+    inputs:
+      testRunTitle: 'Android $(ANDROID_SIMULATOR_APILEVEL) $(UITEST_TEST_MODE_NAME) Test Re-Run'
+      testResultsFormat: 'NUnit'
+      testResultsFiles: '$(build.sourcesdirectory)/build/TestResult-failed-rerun.xml'
       failTaskOnFailedTests: true
 
   - task: PublishBuildArtifacts@1

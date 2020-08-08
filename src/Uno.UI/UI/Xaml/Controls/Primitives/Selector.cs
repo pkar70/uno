@@ -33,12 +33,12 @@ namespace Windows.UI.Xaml.Controls.Primitives
 
 		}
 
-		public static readonly DependencyProperty SelectedItemProperty =
+		public static DependencyProperty SelectedItemProperty { get ; } =
 		DependencyProperty.Register(
 			"SelectedItem",
 			typeof(object),
 			typeof(Selector),
-			new PropertyMetadata(
+			new FrameworkPropertyMetadata(
 				defaultValue: null,
 				propertyChangedCallback: (s, e) => (s as Selector).OnSelectedItemChanged(e.OldValue, e.NewValue, updateItemSelectedState: true)
 			)
@@ -113,10 +113,6 @@ namespace Windows.UI.Xaml.Controls.Primitives
 				SelectedIndex = newIndex;
 			}
 
-			InvokeSelectionChanged(wasSelectionUnset ? new object[] { } : new[] { oldSelectedItem },
-				isSelectionUnset ? new object[] { } : new[] { selectedItem }
-			);
-
 			OnSelectedItemChangedPartial(oldSelectedItem, selectedItem);
 
 			UpdateSelectedValue();
@@ -126,6 +122,10 @@ namespace Windows.UI.Xaml.Controls.Primitives
 				TryUpdateSelectorItemIsSelected(oldSelectedItem, false);
 				TryUpdateSelectorItemIsSelected(selectedItem, true);
 			}
+
+			InvokeSelectionChanged(wasSelectionUnset ? new object[] { } : new[] { oldSelectedItem },
+				isSelectionUnset ? new object[] { } : new[] { selectedItem }
+			);
 		}
 
 		internal void TryUpdateSelectorItemIsSelected(object item, bool isSelected)
@@ -190,8 +190,8 @@ namespace Windows.UI.Xaml.Controls.Primitives
 		}
 
 		// Using a DependencyProperty as the backing store for SelectedIndex.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty SelectedIndexProperty =
-			DependencyProperty.Register("SelectedIndex", typeof(int), typeof(Selector), new PropertyMetadata(-1,
+		public static DependencyProperty SelectedIndexProperty { get ; } =
+			DependencyProperty.Register("SelectedIndex", typeof(int), typeof(Selector), new FrameworkPropertyMetadata(-1,
 				(s, e) => (s as Selector).OnSelectedIndexChanged((int)e.OldValue, (int)e.NewValue)
 			)
 		);
@@ -287,9 +287,9 @@ namespace Windows.UI.Xaml.Controls.Primitives
 		}
 
 		/// <summary>
-		/// The selected index as an <see cref="IndexPath"/> of (group, group position), where group=0 if the source is ungrouped.
+		/// The selected index as an <see cref="Uno.UI.IndexPath"/> of (group, group position), where group=0 if the source is ungrouped.
 		/// </summary>
-		private IndexPath? SelectedIndexPath { get; set; }
+		private Uno.UI.IndexPath? SelectedIndexPath { get; set; }
 
 		protected override void OnItemsSourceChanged(DependencyPropertyChangedEventArgs e)
 		{
@@ -353,7 +353,7 @@ namespace Windows.UI.Xaml.Controls.Primitives
 				case NotifyCollectionChangedAction.Add:
 
 					//Advance SelectedIndex if items are being inserted before it
-					var newIndex = GetIndexFromIndexPath(IndexPath.FromRowSection(c.NewStartingIndex, section));
+					var newIndex = GetIndexFromIndexPath(Uno.UI.IndexPath.FromRowSection(c.NewStartingIndex, section));
 					if (selectedIndexToSet >= newIndex)
 					{
 						selectedIndexToSet += c.NewItems.Count;
@@ -362,7 +362,7 @@ namespace Windows.UI.Xaml.Controls.Primitives
 					break;
 				case NotifyCollectionChangedAction.Remove:
 					{
-						var oldIndex = GetIndexFromIndexPath(IndexPath.FromRowSection(c.OldStartingIndex, section));
+						var oldIndex = GetIndexFromIndexPath(Uno.UI.IndexPath.FromRowSection(c.OldStartingIndex, section));
 						if (selectedIndexToSet >= oldIndex && selectedIndexToSet < oldIndex + c.OldItems.Count)
 						{
 							//Deset if selected item is being removed
@@ -378,7 +378,7 @@ namespace Windows.UI.Xaml.Controls.Primitives
 					break;
 				case NotifyCollectionChangedAction.Replace:
 					{
-						var oldIndex = GetIndexFromIndexPath(IndexPath.FromRowSection(c.OldStartingIndex, section));
+						var oldIndex = GetIndexFromIndexPath(Uno.UI.IndexPath.FromRowSection(c.OldStartingIndex, section));
 						if (selectedIndexToSet >= oldIndex && selectedIndexToSet < oldIndex + c.OldItems.Count)
 						{
 							//Deset if selected item is being replaced
@@ -409,7 +409,7 @@ namespace Windows.UI.Xaml.Controls.Primitives
 			switch (c.Action)
 			{
 				case NotifyCollectionChangedAction.Add:
-					var newIndexPath = IndexPath.FromRowSection(row: 0, section: c.NewStartingIndex);
+					var newIndexPath = Uno.UI.IndexPath.FromRowSection(row: 0, section: c.NewStartingIndex);
 					if (selectedIndexPath >= newIndexPath)
 					{
 						//Advance SelectedIndex if groups are being inserted before it
@@ -423,8 +423,8 @@ namespace Windows.UI.Xaml.Controls.Primitives
 					break;
 				case NotifyCollectionChangedAction.Remove:
 					{
-						var oldIndexPath = IndexPath.FromRowSection(row: 0, section: c.OldStartingIndex);
-						var oldIndexPathLast = IndexPath.FromRowSection(row: int.MaxValue, section: c.OldStartingIndex + c.OldItems.Count);
+						var oldIndexPath = Uno.UI.IndexPath.FromRowSection(row: 0, section: c.OldStartingIndex);
+						var oldIndexPathLast = Uno.UI.IndexPath.FromRowSection(row: int.MaxValue, section: c.OldStartingIndex + c.OldItems.Count);
 						if (selectedIndexPath >= oldIndexPath && selectedIndexPath < oldIndexPathLast)
 						{
 							//Deset if selected item is in group being removed
@@ -444,8 +444,8 @@ namespace Windows.UI.Xaml.Controls.Primitives
 					break;
 				case NotifyCollectionChangedAction.Replace:
 					{
-						var oldIndexPath = IndexPath.FromRowSection(row: 0, section: c.OldStartingIndex);
-						var oldIndexPathLast = IndexPath.FromRowSection(row: int.MaxValue, section: c.OldStartingIndex + c.OldItems.Count);
+						var oldIndexPath = Uno.UI.IndexPath.FromRowSection(row: 0, section: c.OldStartingIndex);
+						var oldIndexPathLast = Uno.UI.IndexPath.FromRowSection(row: int.MaxValue, section: c.OldStartingIndex + c.OldItems.Count);
 						if (selectedIndexPath >= oldIndexPath && selectedIndexPath < oldIndexPathLast)
 						{
 							//Deset if selected item is in group being replaced

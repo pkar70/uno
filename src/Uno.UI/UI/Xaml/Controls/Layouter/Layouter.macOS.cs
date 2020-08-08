@@ -18,7 +18,7 @@ using CoreAnimation;
 
 namespace Windows.UI.Xaml.Controls
 {
-	public abstract partial class Layouter
+	abstract partial class Layouter
 	{
 		public IEnumerable<View> GetChildren()
 		{
@@ -68,7 +68,7 @@ namespace Windows.UI.Xaml.Controls
 		protected Size MeasureChildOverride(View view, Size slotSize)
 		{
 			var ret = view
-				.Measure(slotSize.LogicalToPhysicalPixels())
+				.SizeThatFits(slotSize.LogicalToPhysicalPixels())
 				.PhysicalToLogicalPixels()
 				.ToFoundationSize();
 

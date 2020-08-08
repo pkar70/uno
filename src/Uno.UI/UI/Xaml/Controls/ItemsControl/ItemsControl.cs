@@ -82,6 +82,8 @@ namespace Windows.UI.Xaml.Controls
 		public ItemsControl()
 		{
 			Initialize();
+
+			DefaultStyleKey = typeof(ItemsControl);
 		}
 
 		void Initialize()
@@ -152,8 +154,9 @@ namespace Windows.UI.Xaml.Controls
 				"ItemsPanel",
 				typeof(ItemsPanelTemplate),
 				typeof(ItemsControl),
-				new PropertyMetadata(
+				new FrameworkPropertyMetadata(
 					(ItemsPanelTemplate)null,
+					FrameworkPropertyMetadataOptions.ValueDoesNotInheritDataContext,
 					(s, e) => ((ItemsControl)s)?.OnItemsPanelChanged((ItemsPanelTemplate)e.OldValue, (ItemsPanelTemplate)e.NewValue)
 				)
 			);
@@ -181,8 +184,9 @@ namespace Windows.UI.Xaml.Controls
 				"ItemTemplate",
 				typeof(DataTemplate),
 				typeof(ItemsControl),
-				new PropertyMetadata(
+				new FrameworkPropertyMetadata(
 					(DataTemplate)null,
+					FrameworkPropertyMetadataOptions.ValueDoesNotInheritDataContext,
 					(s, e) => ((ItemsControl)s)?.OnItemTemplateChanged((DataTemplate)e.OldValue, (DataTemplate)e.NewValue)
 				)
 			);
@@ -207,7 +211,7 @@ namespace Windows.UI.Xaml.Controls
 				"ItemTemplateSelector",
 				typeof(DataTemplateSelector),
 				typeof(ItemsControl),
-				new PropertyMetadata(
+				new FrameworkPropertyMetadata(
 					(DataTemplateSelector)null,
 					(s, e) => ((ItemsControl)s)?.OnItemTemplateSelectorChanged((DataTemplateSelector)e.OldValue, (DataTemplateSelector)e.NewValue)
 				)
@@ -227,12 +231,12 @@ namespace Windows.UI.Xaml.Controls
 			set { this.SetValue(ItemsSourceProperty, value); }
 		}
 
-		public static readonly DependencyProperty ItemsSourceProperty =
+		public static DependencyProperty ItemsSourceProperty { get ; } =
 			DependencyProperty.Register(
 				"ItemsSource",
 				typeof(object),
 				typeof(ItemsControl),
-				new PropertyMetadata(null, (s, e) => ((ItemsControl)s).OnItemsSourceChanged(e))
+				new FrameworkPropertyMetadata(null, (s, e) => ((ItemsControl)s).OnItemsSourceChanged(e))
 		);
 		#endregion
 
@@ -315,9 +319,10 @@ namespace Windows.UI.Xaml.Controls
 			set { SetValue(ItemContainerStyleProperty, value); }
 		}
 
-		public static readonly DependencyProperty ItemContainerStyleProperty =
-					DependencyProperty.Register("ItemContainerStyle", typeof(Style), typeof(ItemsControl), new PropertyMetadata(
+		public static DependencyProperty ItemContainerStyleProperty { get ; } =
+					DependencyProperty.Register("ItemContainerStyle", typeof(Style), typeof(ItemsControl), new FrameworkPropertyMetadata(
 						default(Style),
+						FrameworkPropertyMetadataOptions.ValueDoesNotInheritDataContext,
 						(o, e) => ((ItemsControl)o).OnItemContainerStyleChanged((Style)e.OldValue, (Style)e.NewValue))
 					);
 
@@ -331,8 +336,8 @@ namespace Windows.UI.Xaml.Controls
 			set { SetValue(ItemContainerStyleSelectorProperty, value); }
 		}
 
-		public static readonly DependencyProperty ItemContainerStyleSelectorProperty =
-			DependencyProperty.Register("ItemContainerStyleSelector", typeof(StyleSelector), typeof(ItemsControl), new PropertyMetadata(
+		public static DependencyProperty ItemContainerStyleSelectorProperty { get ; } =
+			DependencyProperty.Register("ItemContainerStyleSelector", typeof(StyleSelector), typeof(ItemsControl), new FrameworkPropertyMetadata(
 				default(StyleSelector),
 				(o, e) => ((ItemsControl)o).OnItemContainerStyleSelectorChanged((StyleSelector)e.OldValue, (StyleSelector)e.NewValue))
 			);
@@ -350,26 +355,26 @@ namespace Windows.UI.Xaml.Controls
 			private set { SetValue(IsGroupingProperty, value); }
 		}
 
-		public static readonly DependencyProperty IsGroupingProperty =
-			DependencyProperty.Register("IsGrouping", typeof(bool), typeof(ItemsControl), new PropertyMetadata(false));
+		public static DependencyProperty IsGroupingProperty { get ; } =
+			DependencyProperty.Register("IsGrouping", typeof(bool), typeof(ItemsControl), new FrameworkPropertyMetadata(false));
 		#endregion
 
 		#region Internal Attached Properties
 
-		internal static readonly DependencyProperty IndexForItemContainerProperty =
+		internal static DependencyProperty IndexForItemContainerProperty { get ; } =
 			DependencyProperty.RegisterAttached(
 				"IndexForItemContainer",
 				typeof(int),
 				typeof(ItemsControl),
-				new PropertyMetadata(-1)
+				new FrameworkPropertyMetadata(-1)
 			);
 
-		internal static readonly DependencyProperty ItemsControlForItemContainerProperty =
+		internal static DependencyProperty ItemsControlForItemContainerProperty { get ; } =
 			DependencyProperty.RegisterAttached(
 				"ItemsControlForItemContainer",
 				typeof(WeakReference<ItemsControl>),
 				typeof(ItemsControl),
-				new PropertyMetadata(DependencyProperty.UnsetValue)
+				new FrameworkPropertyMetadata(DependencyProperty.UnsetValue)
 			);
 
 		#endregion
@@ -387,7 +392,7 @@ namespace Windows.UI.Xaml.Controls
 		/// <summary>
 		/// Get the index for the next item after <paramref name="currentItem"/>.
 		/// </summary>
-		internal IndexPath? GetNextItemIndex(IndexPath? currentItem, int direction)
+		internal Uno.UI.IndexPath? GetNextItemIndex(Uno.UI.IndexPath? currentItem, int direction)
 		{
 			if (!HasItems)
 			{
@@ -400,7 +405,7 @@ namespace Windows.UI.Xaml.Controls
 				if (direction == 1)
 				{
 					var firstNonEmptySection = IsGrouping ? GetNextNonEmptySection(-1, 1).Value : 0;
-					return IndexPath.FromRowSection(0, firstNonEmptySection);
+					return Uno.UI.IndexPath.FromRowSection(0, firstNonEmptySection);
 				}
 				else
 				{
@@ -419,7 +424,7 @@ namespace Windows.UI.Xaml.Controls
 			throw new ArgumentOutOfRangeException(nameof(direction));
 		}
 
-		private IndexPath? GetIncrementedItemIndex(IndexPath currentItem)
+		private Uno.UI.IndexPath? GetIncrementedItemIndex(Uno.UI.IndexPath currentItem)
 		{
 			if (!IsGrouping)
 			{
@@ -432,7 +437,7 @@ namespace Windows.UI.Xaml.Controls
 				{
 					return null;
 				}
-				return IndexPath.FromRowSection(currentItem.Row + 1, 0);
+				return Uno.UI.IndexPath.FromRowSection(currentItem.Row + 1, 0);
 			}
 
 			if (currentItem.Row == GetDisplayGroupCount(currentItem.Section) - 1)
@@ -443,12 +448,12 @@ namespace Windows.UI.Xaml.Controls
 					//No more non-empty sections
 					return null;
 				}
-				return IndexPath.FromRowSection(0, nextSection.Value);
+				return Uno.UI.IndexPath.FromRowSection(0, nextSection.Value);
 			}
-			return IndexPath.FromRowSection(currentItem.Row + 1, currentItem.Section);
+			return Uno.UI.IndexPath.FromRowSection(currentItem.Row + 1, currentItem.Section);
 		}
 
-		private IndexPath? GetDecrementedItemIndex(IndexPath currentItem)
+		private Uno.UI.IndexPath? GetDecrementedItemIndex(Uno.UI.IndexPath currentItem)
 		{
 			if (!IsGrouping)
 			{
@@ -460,7 +465,7 @@ namespace Windows.UI.Xaml.Controls
 				{
 					return null;
 				}
-				return IndexPath.FromRowSection(currentItem.Row - 1, 0);
+				return Uno.UI.IndexPath.FromRowSection(currentItem.Row - 1, 0);
 			}
 			if (currentItem.Row == 0)
 			{
@@ -470,9 +475,9 @@ namespace Windows.UI.Xaml.Controls
 					//No previous non-empty sections
 					return null;
 				}
-				return IndexPath.FromRowSection(GetDisplayGroupCount(nextSection.Value) - 1, nextSection.Value);
+				return Uno.UI.IndexPath.FromRowSection(GetDisplayGroupCount(nextSection.Value) - 1, nextSection.Value);
 			}
-			return IndexPath.FromRowSection(currentItem.Row - 1, currentItem.Section);
+			return Uno.UI.IndexPath.FromRowSection(currentItem.Row - 1, currentItem.Section);
 		}
 
 		/// <summary>
@@ -482,7 +487,7 @@ namespace Windows.UI.Xaml.Controls
 		/// 
 		/// Note that the <see cref="IndexPath"/> is still the 'display' value in that it doesn't 'know about' empty groups if HidesIfEmpty is set to true.
 		/// </summary>
-		internal int GetIndexFromIndexPath(IndexPath indexPath)
+		internal int GetIndexFromIndexPath(Uno.UI.IndexPath indexPath)
 		{
 			if (indexPath.Section == 0)
 			{
@@ -500,11 +505,11 @@ namespace Windows.UI.Xaml.Controls
 		/// <summary>
 		/// Convert flat item index to (group, index in group)
 		/// </summary>
-		internal IndexPath? GetIndexPathFromIndex(int index)
+		internal Uno.UI.IndexPath? GetIndexPathFromIndex(int index)
 		{
 			if (!IsGrouping)
 			{
-				return IndexPath.FromRowSection(index, 0);
+				return Uno.UI.IndexPath.FromRowSection(index, 0);
 			}
 
 			int row = index;
@@ -513,7 +518,7 @@ namespace Windows.UI.Xaml.Controls
 				var groupCount = GetDisplayGroupCount(i);
 				if (row < groupCount)
 				{
-					return IndexPath.FromRowSection(row, i);
+					return Uno.UI.IndexPath.FromRowSection(row, i);
 				}
 				else
 				{
@@ -542,7 +547,7 @@ namespace Windows.UI.Xaml.Controls
 		/// <summary>
 		/// Get the last item in the source, or null if the source is empty.
 		/// </summary>
-		internal IndexPath? GetLastItem()
+		internal Uno.UI.IndexPath? GetLastItem()
 		{
 			if (!IsGrouping)
 			{
@@ -552,7 +557,7 @@ namespace Windows.UI.Xaml.Controls
 					return null;
 				}
 
-				return IndexPath.FromRowSection(itemCount - 1, 0);
+				return Uno.UI.IndexPath.FromRowSection(itemCount - 1, 0);
 			}
 
 			for (int i = NumberOfDisplayGroups - 1; i >= 0; i--)
@@ -560,7 +565,7 @@ namespace Windows.UI.Xaml.Controls
 				var count = GetDisplayGroupCount(i);
 				if (count > 0)
 				{
-					return IndexPath.FromRowSection(count - 1, i);
+					return Uno.UI.IndexPath.FromRowSection(count - 1, i);
 				}
 			}
 
@@ -737,7 +742,7 @@ namespace Windows.UI.Xaml.Controls
 						group.GroupItems.VectorChanged += onVectorChanged;
 					}
 
-					if (group is INotifyPropertyChanged bindableGroup)
+					if (group is global::System.ComponentModel.INotifyPropertyChanged bindableGroup)
 					{
 						Disposable.Create(() =>
 							bindableGroup.PropertyChanged -= onPropertyChanged
@@ -746,7 +751,7 @@ namespace Windows.UI.Xaml.Controls
 						bindableGroup.PropertyChanged += onPropertyChanged;
 						OnGroupPropertyChanged(group, insideLoop);
 
-						void onPropertyChanged(object sender, PropertyChangedEventArgs e)
+						void onPropertyChanged(object sender, global::System.ComponentModel.PropertyChangedEventArgs e)
 						{
 							if (e.PropertyName == "Group")
 							{
@@ -836,7 +841,7 @@ namespace Windows.UI.Xaml.Controls
 			UpdateItemsPanelRoot();
 		}
 
-		protected override void OnUnloaded()
+		private protected override void OnUnloaded()
 		{
 			base.OnUnloaded();
 		}
@@ -918,7 +923,7 @@ namespace Windows.UI.Xaml.Controls
 						return container;
 					});
 
-				var results = ItemsPanelRoot.Children.UpdateWithResults(containers.OfType<View>(), comparer: new ViewComparer());
+				var results = ItemsPanelRoot.Children.UpdateWithResults(containers.OfType<UIElement>(), comparer: new ViewComparer());
 
 				foreach (var removed in results.Removed)
 				{
@@ -1016,17 +1021,6 @@ namespace Windows.UI.Xaml.Controls
 			//Prepare ContentPresenter
 			if ((containerAsContentPresenter = element as ContentPresenter) != null)
 			{
-				if (
-					containerAsContentPresenter.Style != null
-					&& containerAsContentPresenter.Style != styleFromItemsControl
-				)
-				{
-					// For now, styles-set properties are not reset when applying another style
-					// so we rely on the ClearStyle method to do this for this particular reuse 
-					// case.
-					containerAsContentPresenter.Style.ClearStyle(containerAsContentPresenter);
-				}
-
 				if (styleFromItemsControl != null)
 				{
 					containerAsContentPresenter.Style = styleFromItemsControl;
@@ -1141,7 +1135,7 @@ namespace Windows.UI.Xaml.Controls
 		public DependencyObject ContainerFromItem(object item)
 		{
 			var index = IndexFromItem(item);
-			return MaterializedContainers.FirstOrDefault(container => Equals(container.GetValue(IndexForItemContainerProperty), index));
+			return index == -1 ? null : MaterializedContainers.FirstOrDefault(container => Equals(IndexFromContainer(container), index));
 		}
 
 		public int IndexFromContainer(DependencyObject container)
@@ -1221,7 +1215,7 @@ namespace Windows.UI.Xaml.Controls
 			return ItemsPanelRoot?.Children.OfType<DependencyObject>() ?? Enumerable.Empty<DependencyObject>();
 		}
 
-		internal object GetDisplayItemFromIndexPath(IndexPath indexPath)
+		internal object GetDisplayItemFromIndexPath(Uno.UI.IndexPath indexPath)
 		{
 			if (!IsGrouping)
 			{
@@ -1246,7 +1240,7 @@ namespace Windows.UI.Xaml.Controls
 			return items?.ElementAtOrDefault(index);
 		}
 
-		internal IndexPath GetIndexPathFromItem(object item)
+		internal Uno.UI.IndexPath GetIndexPathFromItem(object item)
 		{
 			var unwrappedSource = UnwrapItemsSource();
 
@@ -1257,7 +1251,7 @@ namespace Windows.UI.Xaml.Controls
 
 			var index = GetItems()?.IndexOf(item) ?? -1;
 
-			return IndexPath.FromRowSection(index, 0);
+			return Uno.UI.IndexPath.FromRowSection(index, 0);
 		}
 
 		internal ICollectionViewGroup GetGroupAtDisplaySection(int displaySection)

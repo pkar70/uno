@@ -19,8 +19,8 @@
       	Available build targets:
 								uap10.0.17763 (Windows)
 								xamarinios10 (iOS)
-								MonoAndroid90 (Android 9.0)
-								netstandard2.0 (WebAssembly)
+								MonoAndroid10.0 (Android 10.0)
+								netstandard2.0 (WebAssembly, Skia)
 								xamarinmac20 (macOS)
 								net461 (Tests)
 

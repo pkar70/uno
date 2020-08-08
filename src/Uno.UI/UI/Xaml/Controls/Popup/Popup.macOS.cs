@@ -59,7 +59,7 @@ namespace Windows.UI.Xaml.Controls
 			}
 		}
 
-		protected override void OnLoaded()
+		private protected override void OnLoaded()
 		{
 			base.OnLoaded();
 
@@ -79,14 +79,14 @@ namespace Windows.UI.Xaml.Controls
 			}
 		}
 
-		protected override void OnUnloaded()
+		private protected override void OnUnloaded()
 		{
 			base.OnUnloaded();
 
 			PopupPanel?.RemoveFromSuperview();
 		}
 
-		protected override void OnChildChanged(NSView oldChild, NSView newChild)
+		protected override void OnChildChanged(UIElement oldChild, UIElement newChild)
 		{
 			base.OnChildChanged(oldChild, newChild);
 
@@ -111,6 +111,11 @@ namespace Windows.UI.Xaml.Controls
 			RegisterPopupPanel();
 
 			UpdateLightDismissLayer(newIsOpen);
+
+			// this is necessary as during initial measure the panel was Collapsed
+			// and got 0 available size from its parent (root Window element, usually a Frame)
+			// this will ensure the size of its child will be calculated properly
+			PopupPanel.OnInvalidateMeasure();
 
 			EnsureForward();
 		}
