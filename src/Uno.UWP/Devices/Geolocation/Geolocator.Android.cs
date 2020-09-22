@@ -158,6 +158,14 @@ namespace Windows.Devices.Geolocation
 
 		public async Task<Windows.Devices.Geolocation.Geoposition> GetGeopositionAsync(TimeSpan maximumAge, TimeSpan timeout)
 		{
+
+			_locationManager = (LocationManager)Android.App.Application.Context.GetSystemService(Android.Content.Context.LocationService);
+
+			_reportInterval = 1000;
+			_movementThreshold = 0;
+
+			RequestUpdates();
+
 			var providers = _locationManager.GetProviders(_locationCriteria, true);
 			int bestAccuracy = 10000;
 			Location bestLocation = null;
