@@ -221,6 +221,11 @@ namespace Windows.Devices.Geolocation
 
 		}
 
+		~Geolocator()
+        {
+			RemoveUpdates();
+			_locationManager?.Dispose();
+        }
 
 		private void RemoveUpdates() => _locationManager?.RemoveUpdates(this);
 
@@ -293,7 +298,7 @@ namespace Windows.Devices.Geolocation
 			}
 		}
 
-		#region Android ILocationListener
+#region Android ILocationListener
 		public void OnLocationChanged(Location location)
 		{
 			DateTimeOffset date = DateTimeOffset.FromUnixTimeMilliseconds(location.Time);
@@ -320,7 +325,7 @@ namespace Windows.Devices.Geolocation
 			// This method was deprecated in API level 29 (Android 10). This callback will never be invoked.
 		}
 
-		#endregion
+#endregion
 	}
 
 	static class Extensions
