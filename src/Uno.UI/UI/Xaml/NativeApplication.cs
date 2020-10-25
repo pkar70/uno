@@ -80,6 +80,7 @@ namespace Windows.UI.Xaml
 							}
 						}
 					}
+				}
 
 				// default to normal launch
 				if (!handled && !_isRunning)
