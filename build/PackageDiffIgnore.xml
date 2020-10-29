@@ -3077,6 +3077,9 @@
 				fullName="System.Void Windows.ApplicationModel.Contacts.ContactBatch..ctor()"
 				reason="Not part of the UWP API"/>
 			<Member 
+				fullName="System.Void Windows.ApplicationModel.Contacts.ContactReader..ctor()"
+				reason="public ctor does not exist in UWP"/>
+			<Member 
 				fullName="System.Void Windows.System.UserProfile.UserProfilePersonalizationSettings..ctor()"
 				reason="Parameter-less ctor does not exist in UWP"/>
 			<Member
