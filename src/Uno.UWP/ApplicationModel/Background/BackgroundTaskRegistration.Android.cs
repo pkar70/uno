@@ -13,7 +13,6 @@ namespace Windows.ApplicationModel.Background
 	public partial class BackgroundTaskRegistration : IBackgroundTaskRegistration, IBackgroundTaskRegistration2, IBackgroundTaskRegistration3
 	{
 		public string Name { get; internal set; }
-		string IBackgroundTaskRegistration.Name => Name;
 		public IBackgroundTrigger Trigger { get; internal set; }
 
 		public Guid TaskId { get; internal set; }
@@ -37,7 +36,6 @@ namespace Windows.ApplicationModel.Background
 			// if we are here, it means that we didn't find such task.
 		}
 
-		void IBackgroundTaskRegistration.Unregister(bool cancelTask) => Unregister(cancelTask);
 		public void Unregister(bool cancelTask)
 		{
 			if (Trigger is null)
