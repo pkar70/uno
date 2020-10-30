@@ -14,6 +14,8 @@ namespace Windows.ApplicationModel.Contacts
 	public partial class ContactManager
 	{
 
+		// dummy (empty) change to force restart build 
+
 		public static IAsyncOperation<ContactStore> RequestStoreAsync() => RequestStoreAsync(ContactStoreAccessType.AllContactsReadOnly);
 
 		public static IAsyncOperation<ContactStore> RequestStoreAsync(ContactStoreAccessType accessType) => RequestStoreAsyncTask(accessType).AsAsyncOperation<ContactStore>();
@@ -49,6 +51,7 @@ namespace Windows.ApplicationModel.Contacts
 				|| await Windows.Extensions.PermissionsHelper.TryGetPermission(CancellationToken.None, Android.Manifest.Permission.ReadContacts))
 			{
 				return new ContactStore();
+
 			}
 
 			return null;
