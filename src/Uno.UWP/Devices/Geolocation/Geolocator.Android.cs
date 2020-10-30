@@ -217,7 +217,7 @@ namespace Windows.Devices.Geolocation
 
 			BroadcastStatus(PositionStatus.Disabled);
 			RemoveUpdates();
-			throw new TimeoutException();
+			throw new TimeoutException("Timeout in GetGeopositionAsync(TimeSpan,TimeSpan)");
 
 		}
 
@@ -253,7 +253,7 @@ namespace Windows.Devices.Geolocation
 				_locationCriteria.HorizontalAccuracy = Accuracy.Medium;
 			}
 
-			_locationManager.RequestLocationUpdates(_reportInterval, (float)_movementThreshold, _locationCriteria, this, Looper.MainLooper);
+			_locationManager?.RequestLocationUpdates(_reportInterval, (float)_movementThreshold, _locationCriteria, this, Looper.MainLooper);
 		}
 
 		private uint _reportInterval = 1000;
