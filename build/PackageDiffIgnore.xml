@@ -3317,7 +3317,10 @@
 			<Member
 				fullName="Windows.UI.Xaml.FrameworkElement Windows.UI.Xaml.Media.VisualTreeHelper.TryAdaptNative(System.Object view)"
 				reason="Non UWP API - Has been updated to use UIElement instead of Object"/>
-		</Methods>
+			<Member
+				fullName="Windows.ApplicationModel.Background.IBackgroundTaskInstance Windows.UI.WebUI.BackgroundActivatedEventArgs.get_TaskInstance()"
+				reason="Build complains, but method seems to be present"/>
+        </Methods>
 	</IgnoreSet>
 
 	<!--
