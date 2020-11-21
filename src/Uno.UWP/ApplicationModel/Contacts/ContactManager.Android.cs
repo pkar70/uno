@@ -14,8 +14,6 @@ namespace Windows.ApplicationModel.Contacts
 	public partial class ContactManager
 	{
 
-		// dummy (empty) change to force restart build 
-
 		public static IAsyncOperation<ContactStore> RequestStoreAsync() => RequestStoreAsync(ContactStoreAccessType.AllContactsReadOnly);
 
 		public static IAsyncOperation<ContactStore> RequestStoreAsync(ContactStoreAccessType accessType) => RequestStoreAsyncTask(accessType).AsAsyncOperation<ContactStore>();
